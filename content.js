@@ -671,6 +671,10 @@
     if (Date.now() < restUntil) {
       const remainMin = ((restUntil - Date.now()) / 60000).toFixed(1);
       log(`Resting — ${remainMin} min remaining`, true);
+      // Send keepalive to background so watchdog knows we're alive (no Telegram)
+      try {
+        chrome.runtime.sendMessage({ type: 'KEEPALIVE' });
+      } catch { /* ignore */ }
       // Schedule next check in 30–60 seconds
       actionTimer = setTimeout(executeAction, FBQARandom.randomInt(30000, 60000));
       return;
@@ -865,10 +869,25 @@
         paused = false;
         if (active) {
           log('Action loop RESUMED');
+          clearActionTimer();
           scheduleNext('resume');
         }
         sendResponse({ ok: true });
         break;
+
+      case 'PING': {
+        // Watchdog ping from background — check if action loop is alive
+        const loopAlive = active && actionTimer !== null;
+        if (active && !loopAlive && !paused) {
+          // Action loop died — restart it
+          log('PING: action loop dead — restarting');
+          sendLog('🔧 Watchdog restarted action loop');
+          clearActionTimer();
+          actionTimer = setTimeout(executeAction, FBQARandom.randomInt(1000, 3000));
+        }
+        sendResponse({ ok: true, alive: loopAlive });
+        break;
+      }
 
       case 'UPDATE_SETTINGS':
         settings = msg.settings;

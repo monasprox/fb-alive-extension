@@ -698,6 +698,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         sendResponse({ ok: true });
         break;
 
+      case 'KEEPALIVE':
+        // Content.js is alive (e.g. resting) — update lastActionTime without logging
+        state.lastActionTime = Date.now();
+        sendResponse({ ok: true });
+        break;
+
       case 'VISIBILITY_CHANGED':
         // v2.0: Log visibility but DON'T pause — continuous running
         if (msg.hidden) {
@@ -811,6 +817,26 @@ chrome.alarms.onAlarm.addListener(async alarm => {
   }
 
   log(`Heartbeat — status:${state.status} errors:${state.errorCount} cookies:${state.cookieChanges.length}`);
+
+  // ── Watchdog: detect stale content.js and re-kick ──────────────────
+  // If session is ACTIVE and no action logged for 3+ minutes, content loop likely died
+  if (state.status === 'ACTIVE' && state.targetTabId && state.lastActionTime) {
+    const silentMs = Date.now() - state.lastActionTime;
+    const MAX_SILENT_MS = 3 * 60 * 1000; // 3 minutes
+    if (silentMs > MAX_SILENT_MS) {
+      log(`Watchdog: content silent for ${(silentMs / 60000).toFixed(1)} min — pinging`);
+      pushLog('🔧 Watchdog: re-kicking action loop');
+      try {
+        // Try sending PING first to check if content.js is alive
+        await chrome.tabs.sendMessage(state.targetTabId, { type: 'PING' });
+      } catch {
+        // Content script not responding — re-inject
+        log('Watchdog: content not responding — re-injecting');
+        pushLog('🔧 Watchdog: re-injecting content script');
+        await tryReinjectContentScript();
+      }
+    }
+  }
 });
 
 // ─── Tab lifecycle listeners ──────────────────────────────────────────────────
