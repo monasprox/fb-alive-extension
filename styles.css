@@ -178,7 +178,7 @@ body {
 }
 
 /* Tab panels */
-.tab-panel { display: none; flex-direction: column; gap: 7px; }
+.tab-panel { display: none; flex-direction: column; gap: 7px; min-width: 0; overflow: hidden; }
 .tab-panel.active { display: flex; }
 
 /* â”€â”€â”€ Base card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -746,7 +746,7 @@ input[type="range"]::-webkit-slider-runnable-track {
 .tg-test-result.error   { color: var(--danger); padding: 4px 0; }
 
 /* â”€â”€â”€ Activity log card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-.log-card { padding: 11px 14px 12px; }
+.log-card { padding: 11px 14px 12px; overflow: hidden; }
 
 .log-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -774,7 +774,9 @@ input[type="range"]::-webkit-slider-runnable-track {
 .log-panel {
   max-height: 360px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex; flex-direction: column; gap: 3px;
+  min-width: 0;
 }
 
 .log-panel::-webkit-scrollbar { width: 2px; }
@@ -795,6 +797,8 @@ input[type="range"]::-webkit-slider-runnable-track {
   border-radius: 4px;
   animation: log-fadein 0.2s ease;
   border-left: 2px solid transparent;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .log-item:hover { background: rgba(255,255,255,0.03); }
@@ -803,7 +807,7 @@ input[type="range"]::-webkit-slider-runnable-track {
   color: var(--text-muted); font-size: 9px; flex-shrink: 0;
   opacity: 0.7; min-width: 56px; padding-top: 1px;
 }
-.log-msg { color: var(--text-dim); word-break: break-word; flex: 1; min-width: 0; }
+.log-msg { color: var(--text-dim); word-break: break-all; overflow-wrap: anywhere; flex: 1; min-width: 0; overflow: hidden; }
 
 .log-item.log-scroll  { border-left-color: #7dd3fc; }
 .log-item.log-browse  { border-left-color: #6ee7b7; }
