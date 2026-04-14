@@ -170,6 +170,21 @@
 
 Extension popup "Frosted Terminal" với 4 tab:
 
+<table>
+  <tr>
+    <td align="center"><strong>Settings</strong></td>
+    <td align="center"><strong>Cookies</strong></td>
+    <td align="center"><strong>Rotation</strong></td>
+    <td align="center"><strong>Logs</strong></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/833854c6-619b-42dc-a18a-219eed850128" width="200" alt="Settings tab"></td>
+    <td><img src="https://github.com/user-attachments/assets/b4f44d46-61d6-4353-a7db-51d24074b57e" width="200" alt="Cookies tab"></td>
+    <td><img src="https://github.com/user-attachments/assets/5208ea56-8259-4aba-9e5a-8d459166a508" width="200" alt="Rotation tab"></td>
+    <td><img src="https://github.com/user-attachments/assets/0b182122-47ef-4463-af35-f9a9a77cd320" width="200" alt="Logs tab"></td>
+  </tr>
+</table>
+
 | Tab | Chức năng |
 |-----|-----------|
 | **Settings** | Scroll timing, toggles, browse mode, Telegram config |
