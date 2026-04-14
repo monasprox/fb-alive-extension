@@ -28,14 +28,25 @@
   let actionTimer = null;
   let actionCount = 0;
 
-  // v2.0: visited tracking & rest periods
-  const visitedUrls   = new Set();   // post/profile URLs already visited
-  let restUntil       = 0;           // epoch ms — skip actions until this time
-  let actionsUntilRest = 0;          // countdown to next rest period
+  // v2.0: visited tracking & rest periods (persisted via sessionStorage)
+  const visitedUrls = new Set(
+    JSON.parse(sessionStorage.getItem('__fbqa_visited__') || '[]')
+  );
+  let restUntil = parseInt(sessionStorage.getItem('__fbqa_restUntil__') || '0', 10);
+  let actionsUntilRest = parseInt(sessionStorage.getItem('__fbqa_actionsLeft__') || '0', 10);
+
+  function persistState() {
+    try {
+      sessionStorage.setItem('__fbqa_visited__', JSON.stringify([...visitedUrls]));
+      sessionStorage.setItem('__fbqa_restUntil__', String(restUntil));
+      sessionStorage.setItem('__fbqa_actionsLeft__', String(actionsUntilRest));
+    } catch { /* quota exceeded — ignore */ }
+  }
 
   function resetRestCounter() {
     // Random 15–50 actions before next rest
     actionsUntilRest = FBQARandom.randomInt(15, 50);
+    persistState();
   }
 
   // ─── Constants ───────────────────────────────────────────────────────────
@@ -427,7 +438,7 @@
       } catch { return false; }
 
       // Track as visited
-      try { visitedUrls.add(new URL(link.href).pathname); } catch {}
+      try { visitedUrls.add(new URL(link.href).pathname); persistState(); } catch {}
 
       const returnTo = window.location.href;
       sessionStorage.setItem('__fbqa_return__', returnTo);
@@ -512,7 +523,7 @@
       if (visibleLinks.length === 0) visibleLinks = unvisited;
 
       const link = FBQARandom.pick(shuffle(visibleLinks));
-      try { visitedUrls.add(new URL(link.href).pathname); } catch {}
+      try { visitedUrls.add(new URL(link.href).pathname); persistState(); } catch {}
 
       const returnTo = window.location.href;
       sessionStorage.setItem('__fbqa_return__', returnTo);
@@ -664,6 +675,12 @@
       actionTimer = setTimeout(executeAction, FBQARandom.randomInt(30000, 60000));
       return;
     }
+    // If we just finished resting, log it
+    if (restUntil > 0) {
+      sendLog(`⏰ Rest done — resuming actions | visited: ${visitedUrls.size} URLs`);
+      restUntil = 0;
+      persistState();
+    }
 
     // Check if we're in a post-browse-visit return flow
     if (handleAutoReturn()) {
@@ -678,6 +695,7 @@
       const restMinutes = FBQARandom.randomInt(5, 20);
       restUntil = Date.now() + restMinutes * 60 * 1000;
       resetRestCounter();
+      persistState();
       sendLog(`😴 Resting for ${restMinutes} min (${actionCount} actions done) | visited: ${visitedUrls.size} URLs`);
       log(`Rest period: ${restMinutes} min. Next batch after ${actionsUntilRest} actions.`);
       actionTimer = setTimeout(executeAction, FBQARandom.randomInt(30000, 60000));
@@ -816,8 +834,9 @@
         active      = true;
         paused      = false;
         actionCount = 0;
-        resetRestCounter();
-        restUntil   = 0;
+        // Only reset rest counter if not already in a rest period or mid-session
+        if (actionsUntilRest <= 0) resetRestCounter();
+        // Preserve restUntil from sessionStorage (don't reset to 0)
         clearActionTimer();
         log('Action loop STARTED');
         // Warm-up delay: 1.5–4s
