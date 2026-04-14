@@ -172,10 +172,10 @@ Extension popup "Frosted Terminal" với 4 tab:
 
 <table>
   <tr>
-    <td align="center"><strong>Settings</strong></td>
-    <td align="center"><strong>Cookies</strong></td>
-    <td align="center"><strong>Rotation</strong></td>
+    <td align="center"><strong>Home</strong></td>
+    <td align="center"><strong>Features</strong></td>
     <td align="center"><strong>Logs</strong></td>
+    <td align="center"><strong>Invalid Context</strong></td>
   </tr>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/833854c6-619b-42dc-a18a-219eed850128" width="200" alt="Settings tab"></td>
