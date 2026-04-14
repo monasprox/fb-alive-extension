@@ -1,0 +1,326 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FB QA Keep-Alive</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <header class="header">
+    <div class="header-left">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M12 7v5.25l3.5 2" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="header-title">FB QA Keep-Alive</span>
+      <span class="header-version mono">v2.1</span>
+    </div>
+    <div class="domain-pill" id="domainPill">
+      <span class="dp-dot"></span>
+      <span class="dp-text" id="domainText">â€”</span>
+    </div>
+  </header>
+
+  <!-- â”€â”€ Status + power card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <div class="card status-card" id="statusCard">
+    <div class="status-row">
+      <div class="status-badge stopped" id="statusBadge" role="status" aria-live="polite">
+        <span class="badge-dot"></span>
+        <span id="statusText">STOPPED</span>
+      </div>
+      <div class="status-meta">
+        <div class="uptime-block">
+          <span class="uptime-label">UPTIME</span>
+          <span class="uptime-value mono" id="uptimeDisplay">00:00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="power-wrap">
+      <div class="power-ring-wrap">
+        <div class="power-ring" id="powerRing" aria-hidden="true"></div>
+        <div class="power-ring-2" id="powerRing2" aria-hidden="true"></div>
+        <button class="power-btn" id="powerBtn" aria-label="Start monitoring" disabled>
+          <svg class="power-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18.36 5.64a9 9 0 1 1-12.73 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="action-hint" id="actionHint">Press to start monitoring</p>
+    </div>
+  </div>
+
+  <!-- â”€â”€ Domain warning â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <div class="card warning-card" id="warningCard" style="display:none" role="alert">
+    <svg class="warn-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94
+               a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <div class="warn-title">Not a Facebook tab</div>
+      <div class="warn-body">Navigate to facebook.com to activate</div>
+    </div>
+  </div>
+
+  <!-- â”€â”€ Tab navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="settings">Settings</button>
+    <button class="tab-btn" data-tab="cookies">Cookies</button>
+    <button class="tab-btn" data-tab="rotation">Rotation</button>
+    <button class="tab-btn" data-tab="logs">Logs</button>
+  </div>
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: Settings â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="tab-panel active" id="panel-settings">
+
+    <!-- Scroll settings -->
+    <div class="card settings-card">
+      <span class="section-label">SCROLL INTERVAL</span>
+      <div class="range-grid">
+        <div class="range-group">
+          <label class="range-label" for="intervalMin">
+            Min <span class="range-val"><span id="intervalMinVal">8</span>s</span>
+          </label>
+          <input type="range" id="intervalMin" min="5" max="120" value="8" step="1">
+        </div>
+        <div class="range-group">
+          <label class="range-label" for="intervalMax">
+            Max <span class="range-val"><span id="intervalMaxVal">45</span>s</span>
+          </label>
+          <input type="range" id="intervalMax" min="10" max="300" value="45" step="5">
+        </div>
+      </div>
+      <div class="settings-spacer">
+        <span class="section-label">SCROLL DISTANCE</span>
+        <div class="range-grid">
+          <div class="range-group">
+            <label class="range-label" for="scrollMin">
+              Min <span class="range-val"><span id="scrollMinVal">80</span>px</span>
+            </label>
+            <input type="range" id="scrollMin" min="20" max="300" value="80" step="10">
+          </div>
+          <div class="range-group">
+            <label class="range-label" for="scrollMax">
+              Max <span class="range-val"><span id="scrollMaxVal">400</span>px</span>
+            </label>
+            <input type="range" id="scrollMax" min="50" max="600" value="400" step="10">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toggles -->
+    <div class="card toggles-card">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-name">Random Jitter</span>
+          <span class="toggle-desc">Â±20% noise on all timings</span>
+        </div>
+        <label class="toggle-switch"><input type="checkbox" id="jitterToggle" checked><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-name">Safe Mode</span>
+          <span class="toggle-desc">Auto-stop on login / checkpoint</span>
+        </div>
+        <label class="toggle-switch"><input type="checkbox" id="safeModeToggle" checked><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-name">Debug Mode</span>
+          <span class="toggle-desc">Verbose console output</span>
+        </div>
+        <label class="toggle-switch"><input type="checkbox" id="debugToggle"><span class="toggle-track"></span></label>
+      </div>
+    </div>
+
+    <!-- Browse Mode -->
+    <div class="card browse-card">
+      <div class="browse-header">
+        <span class="section-label" style="margin-bottom:0">BROWSE MODE</span>
+        <label class="toggle-switch"><input type="checkbox" id="browseModeToggle"><span class="toggle-track"></span></label>
+      </div>
+      <p class="browse-desc">Simulate human browsing: stories, hover, profile, post, friends, reels</p>
+
+      <div class="browse-freq-row" id="browseFreqRow">
+        <label class="range-label" for="browseFreq">
+          Frequency <span class="range-val"><span id="browseFreqVal">15</span>%</span>
+        </label>
+        <input type="range" id="browseFreq" min="5" max="40" value="15" step="5">
+      </div>
+
+      <div class="browse-subs" id="browseSubs">
+        <div class="browse-sub-row">
+          <label class="browse-sub-label">Story scroll</label>
+          <label class="toggle-switch toggle-sm"><input type="checkbox" id="browseStoryToggle" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="browse-sub-row">
+          <label class="browse-sub-label">Post hover</label>
+          <label class="toggle-switch toggle-sm"><input type="checkbox" id="browseHoverToggle" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="browse-sub-row">
+          <label class="browse-sub-label">Profile visit</label>
+          <label class="toggle-switch toggle-sm"><input type="checkbox" id="browseProfileToggle" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="browse-sub-row" style="border-bottom:none">
+          <label class="browse-sub-label">Open post</label>
+          <label class="toggle-switch toggle-sm"><input type="checkbox" id="browsePostToggle" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Telegram -->
+    <div class="card telegram-card">
+      <div class="browse-header">
+        <span class="section-label" style="margin-bottom:0">TELEGRAM ALERTS</span>
+        <label class="toggle-switch"><input type="checkbox" id="telegramToggle" checked><span class="toggle-track"></span></label>
+      </div>
+      <div class="telegram-fields" id="telegramFields">
+        <div class="tg-field">
+          <label class="tg-label" for="tgBotToken">Bot Token</label>
+          <input type="text" id="tgBotToken" class="tg-input mono" placeholder="123456:ABC-DEF..." spellcheck="false">
+        </div>
+
+        <!-- Mode selector: Group or Private -->
+        <div class="tg-mode-selector">
+          <label class="tg-mode-option">
+            <input type="radio" name="tgMode" value="group" id="tgModeGroup" checked>
+            <span class="tg-mode-label">Group / Topic</span>
+          </label>
+          <label class="tg-mode-option">
+            <input type="radio" name="tgMode" value="private" id="tgModePrivate">
+            <span class="tg-mode-label">Private Chat</span>
+          </label>
+        </div>
+
+        <!-- Group fields -->
+        <div class="tg-group-fields" id="tgGroupFields">
+          <div class="tg-field">
+            <label class="tg-label" for="tgGroupChatId">Group Chat ID</label>
+            <input type="text" id="tgGroupChatId" class="tg-input mono" placeholder="-100xxxxxxxxxx" spellcheck="false">
+          </div>
+          <div class="tg-field">
+            <label class="tg-label" for="tgTopicId">Topic ID <span style="opacity:0.5;font-weight:400">(message_thread_id)</span></label>
+            <input type="text" id="tgTopicId" class="tg-input mono" placeholder="446" spellcheck="false">
+          </div>
+        </div>
+
+        <!-- Private fields -->
+        <div class="tg-private-fields" id="tgPrivateFields" style="display:none">
+          <div class="tg-field">
+            <label class="tg-label" for="tgPrivateChatId">Private Chat ID</label>
+            <input type="text" id="tgPrivateChatId" class="tg-input mono" placeholder="8314355789" spellcheck="false">
+          </div>
+        </div>
+
+        <button class="action-btn accent-btn" id="tgTestBtn" style="margin-top:4px">
+          Send Test Message
+        </button>
+        <div class="tg-test-result mono" id="tgTestResult"></div>
+      </div>
+    </div>
+
+  </div><!-- /panel-settings -->
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: Cookies â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="tab-panel" id="panel-cookies">
+
+    <div class="card cookie-card">
+      <div class="cookie-header-row">
+        <div>
+          <span class="section-label" style="margin-bottom:0">FACEBOOK COOKIES</span>
+          <span class="cookie-count mono" id="cookieCount">0 cookies</span>
+        </div>
+        <label class="toggle-switch" title="Auto-track changes">
+          <input type="checkbox" id="cookieTrackingToggle" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Cookie list â€” real values -->
+      <div class="cookie-list" id="cookieList">
+        <div class="log-empty">Loading cookies...</div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="cookie-actions">
+        <button class="action-btn accent-btn" id="copyCookieStringBtn">
+          Copy Cookie String
+        </button>
+        <button class="action-btn" id="copyCookieJsonBtn">
+          Copy as JSON
+        </button>
+        <button class="action-btn" id="forceCookieCheckBtn">
+          Check Changes
+        </button>
+      </div>
+
+      <!-- Cookie changes log -->
+      <div class="cookie-changes-section" id="cookieChangesSection">
+        <span class="section-label" style="margin-top:8px">RECENT CHANGES</span>
+        <div class="cookie-changes-panel" id="cookieChangesPanel">
+          <div class="log-empty">No cookie changes detected</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-cookies -->
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: Rotation â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="tab-panel" id="panel-rotation">
+
+    <div class="card rotation-card">
+      <div class="browse-header">
+        <span class="section-label" style="margin-bottom:0">TAB ROTATION</span>
+        <label class="toggle-switch"><input type="checkbox" id="tabRotationToggle" checked><span class="toggle-track"></span></label>
+      </div>
+      <p class="browse-desc">Cycle through Facebook pages to simulate multi-page browsing</p>
+
+      <div class="rotation-urls" id="rotationUrlsList"></div>
+
+      <div class="rotation-controls">
+        <label class="range-label" for="tabRotateDwell">
+          Dwell time <span class="range-val"><span id="tabRotateDwellVal">60</span>s</span>
+        </label>
+        <input type="range" id="tabRotateDwell" min="15" max="180" value="60" step="5">
+      </div>
+
+      <button class="action-btn" id="forceRotateBtn">Rotate Now</button>
+    </div>
+
+  </div><!-- /panel-rotation -->
+
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TAB: Logs â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+  <div class="tab-panel" id="panel-logs">
+
+    <div class="card log-card">
+      <div class="log-header">
+        <span class="section-label">ACTIVITY LOG <span class="log-entry-count mono" id="logCount">0</span></span>
+        <button class="clear-btn" id="clearLogBtn">CLEAR</button>
+      </div>
+      <div class="log-panel" id="logPanel" role="log" aria-live="polite">
+        <div class="log-empty">No activity yet</div>
+      </div>
+    </div>
+
+  </div><!-- /panel-logs -->
+
+  <!-- â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <footer class="footer">
+    <span class="mono" id="footerVersion">v2.1.0</span>
+    <span class="footer-sep">Â·</span>
+    <span class="mono" id="footerHost">â€”</span>
+  </footer>
+
+</div>
+<script src="utils/random.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

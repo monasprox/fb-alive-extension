@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "FB QA Session Keep-Alive",
+  "version": "2.0.0",
+  "description": "QA session keep-alive tool — browser-side scroll simulation, cookie tracking, multi-tab rotation, Telegram alerts.",
+
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs",
+    "alarms",
+    "cookies"
+  ],
+
+  "host_permissions": [
+    "*://*.facebook.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FB QA Keep-Alive"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.facebook.com/*"],
+      "js": ["utils/random.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
